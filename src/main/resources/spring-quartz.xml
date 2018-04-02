@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.zzq.*" />
+
+    <bean id="leaveJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" value="com.zzq.job.LeaveJob" />
+        <!-- 当这个参数为 true 时，就算任务还没有绑定触发器它也会帮你创建这个任务，默认为 false -->
+        <property name="jobDataMap">
+            <map>
+                <entry key="animal" value-ref="animal" />
+            </map>
+        </property>
+        <property name="durability" value="true" />
+      </bean>
+
+    <bean id="leaveJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="name" value="leaveJobTrigger" />
+        <property name="group" value="triggerGroup" />
+        <!-- 任务运行的时间间隔 ， 单位为秒 -->
+        <property name="repeatInterval" value="5000" />
+        <!-- 任务运行的时间次数 -->
+        <property name="repeatCount" value="3" />
+        <!-- 触发器与任务的绑定 -->
+        <property name="jobDetail" ref="leaveJobDetail" />
+    </bean>
+
+    <!--<bean id="returnJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="name" value="returnJobDetail"/>
+        <property name="group" value="jobGroup"/>
+        &lt;!&ndash;<property name="targetClass" value="com.zzq.job.ReturnJob" />&ndash;&gt;
+        <property name="targetObject" ref="returnJob" />
+        <property name="targetMethod" value="execute" />
+    </bean>
+
+    <bean id="returnJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="name" value="returnJobTrigger"/>
+        <property name="group" value="triggerGroup" />
+        &lt;!&ndash; 触发器与任务的绑定 &ndash;&gt;
+        <property name="jobDetail" ref="returnJobDetail" />
+        <property name="cronExpression" value="0/5 * * * * ?"/>
+    </bean>-->
+
+    <bean id="testJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="name" value="testJobDetail"/>
+        <property name="group" value="jobGroup"/>
+        <property name="targetObject" ref="testJob" />
+        <property name="targetMethod" value="run" />
+    </bean>
+
+    <bean id="testJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="name" value="testJobTrigger"/>
+        <property name="group" value="triggerGroup" />
+        <!-- 触发器与任务的绑定 -->
+        <property name="jobDetail" ref="testJobDetail" />
+        <property name="cronExpression" value="0/5 * * * * ?"/>
+    </bean>
+
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="jobDetails">
+            <list>
+                <ref bean="leaveJobDetail" />
+                <!--<ref bean="returnJobDetail" />-->
+                <ref bean="testJobDetail" />
+            </list>
+        </property>
+        <property name="triggers">
+            <list>
+                <ref bean="leaveJobTrigger" />
+                <!--<ref bean="returnJobTrigger" />-->
+                <ref bean="testJobTrigger" />
+            </list>
+        </property>
+    </bean>
+
+</beans>
